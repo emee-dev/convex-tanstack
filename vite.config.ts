@@ -3,8 +3,9 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
-import { isDeployedOnCloudflare } from '@/lib/utils'
+import { isDeployedOnCloudflare } from './src/lib/utils'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import netlify from '@netlify/vite-plugin-tanstack-start'
 
 const config = defineConfig({
   server: {
@@ -19,7 +20,7 @@ const config = defineConfig({
     isDeployedOnCloudflare
       ? cloudflare({ viteEnvironment: { name: 'ssr' } })
       : [],
-
+    netlify(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

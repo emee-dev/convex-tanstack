@@ -19,6 +19,7 @@
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.7",
     "@convex-dev/react-query": "0.0.0-alpha.11",
+    "@netlify/vite-plugin-tanstack-start": "^1.1.8",
     "@sentry/tanstackstart-react": "^10.22.0",
     "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-devtools": "^0.7.11",
