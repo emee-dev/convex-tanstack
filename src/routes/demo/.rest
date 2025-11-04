@@ -1,0 +1,14 @@
+
+
+# POST http://localhost:3000/demo/api/names
+# Content-Type: application/json
+
+# {
+#     "name": "Emmie"
+# }
+get http://localhost:3000/api/blogs
+Content-Type: application/json
+
+{
+    "name": "Emmie"
+}
