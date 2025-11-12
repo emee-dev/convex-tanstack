@@ -6,45 +6,60 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Button } from './ui/button'
+import { useNavigate } from '@tanstack/react-router'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
+  const navigate = useNavigate()
+  const [showDetails, setShowDetails] = useState<boolean>(false)
+
   const isRoot = useMatch({
     strict: false,
-    select: (state: any) => state.id === rootRouteId,
+    select: (state: any): boolean => state.id === rootRouteId,
   })
 
   console.error('DefaultCatchBoundary Error:', error)
 
   return (
     <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
-      <ErrorComponent error={error} />
-      <div className="flex gap-2 items-center flex-wrap">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <ErrorComponent error={error} />
+
         <button
-          onClick={() => {
-            router.invalidate()
-          }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
+          onClick={() => setShowDetails((v) => !v)}
+          className="text-sm underline opacity-70 hover:opacity-100 transition"
         >
-          Try Again
+          {showDetails ? 'Hide error details' : 'Show error details'}
         </button>
+
+        {showDetails && (
+          <pre className="bg-gray-900 text-gray-200 text-xs p-3 rounded-md max-w-full overflow-auto whitespace-pre-wrap">
+            {String(error?.stack || error)}
+          </pre>
+        )}
+      </div>
+
+      <div className="flex gap-2 items-center flex-wrap">
+        <Button size="sm" onClick={() => router.invalidate()}>
+          {' '}
+          Try Again
+        </Button>
+
         {isRoot ? (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
-          >
-            Home
+          <Link to="/">
+            <Button size="sm">Home</Button>
           </Link>
         ) : (
           <Link
             to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded-sm text-white uppercase font-extrabold`}
             onClick={(e: any) => {
               e.preventDefault()
-              window.history.back()
+              navigate({ to: '/' })
             }}
           >
-            Go Back
+            <Button size="sm">Go Back</Button>
           </Link>
         )}
       </div>
