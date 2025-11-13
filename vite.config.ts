@@ -6,6 +6,7 @@ import viteReact from '@vitejs/plugin-react'
 import mdx from 'fumadocs-mdx/vite'
 import { defineConfig } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 const config = defineConfig(async ({ mode }) => {
   const HOST =
@@ -13,41 +14,49 @@ const config = defineConfig(async ({ mode }) => {
       ? 'http://localhost:3000'
       : 'https://webhooksh.netlify.app'
 
+  const basePlugins = [
+    mdx(await import('./source.config')),
+    viteTsConfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        onSuccess: ({ page }) => {
+          console.log(`Pre rendered "${page.path}" done.`)
+        },
+      },
+      pages: [
+        {
+          path: '/docs',
+          prerender: { enabled: true },
+        },
+      ],
+      sitemap: {
+        enabled: true,
+        host: HOST,
+      },
+    }),
+    tailwindcss(),
+    viteReact(),
+    mode === 'production' ? netlify() : [],
+  ]
+
+  if (process.env.SENTRY_AUTH_TOKEN) {
+    basePlugins.push(
+      sentryVitePlugin({
+        org: 'convex-tanstack',
+        project: 'convex-tanstack',
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+      }),
+    )
+  }
+
   return {
     server: {
       port: 3000,
     },
-    plugins: [
-      mdx(await import('./source.config')),
-      viteTsConfigPaths({
-        projects: ['./tsconfig.json'],
-      }),
-      mode === 'production' ? netlify() : [],
-      // cloudflareDeployment
-      //   ? cloudflare({ viteEnvironment: { name: 'ssr' } })
-      //   : [],
-
-      tailwindcss(),
-      tanstackStart({
-        prerender: {
-          enabled: true,
-          onSuccess: ({ page }) => {
-            console.log(`Pre rendered "${page.path}" done.`)
-          },
-        },
-        pages: [
-          {
-            path: '/docs',
-            prerender: { enabled: true },
-          },
-        ],
-        sitemap: {
-          enabled: true,
-          host: HOST,
-        },
-      }),
-      viteReact(),
-    ],
+    plugins: basePlugins,
   }
 })
 

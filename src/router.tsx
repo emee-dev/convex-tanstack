@@ -2,7 +2,7 @@ import { DefaultCatchBoundary } from '@/components/error-boundary'
 import { NotFound } from '@/components/not-found'
 import { ConvexAuthProvider } from '@convex-dev/auth/react'
 import { ConvexQueryClient } from '@convex-dev/react-query'
-import * as Sentry from '@sentry/tanstackstart-react'
+// import * as Sentry from '@sentry/tanstackstart-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { ConvexReactClient } from 'convex/react'
@@ -47,15 +47,6 @@ export const getRouter = () => {
     defaultErrorComponent: DefaultCatchBoundary,
     defaultNotFoundComponent: () => <NotFound />,
   })
-
-  if (!router.isServer && !isDev) {
-    Sentry.init({
-      dsn: import.meta.env.VITE_SENTRY_DSN,
-      environment: import.meta.env.NODE_ENV,
-      sendDefaultPii: true,
-      integrations: [],
-    })
-  }
 
   return router
 }

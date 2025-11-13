@@ -2,9 +2,11 @@ import { getFingerPrint } from '@/actions/client'
 import { AppSidebar } from '@/components/app-sidebar'
 import { AuthDialog } from '@/components/auth-dialog'
 import { Loader } from '@/components/loader'
+import { ProfileDropdown } from '@/components/profile-dropdown'
 import { RequestLayout } from '@/components/request-layout'
 import { SearchDialog } from '@/components/search-dialog'
 import { AnimatedThemeToggler } from '@/components/theme-toggle'
+import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -14,16 +16,18 @@ import {
 import { api } from '@/convex/_generated/api'
 import { Requests } from '@/lib/utils'
 import { convexQuery } from '@convex-dev/react-query'
+import * as Sentry from '@sentry/tanstackstart-react'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { useEffect, useState } from 'react'
-import { ProfileDropdown } from '../components/profile-dropdown'
 
 export const Route = createFileRoute('/')({
   component: App,
   loader: async () => {
     const browserId = await getFingerPrint()
+
+    Sentry.setTag('browserId', browserId)
 
     return {
       browserId: String(browserId),
@@ -31,12 +35,15 @@ export const Route = createFileRoute('/')({
   },
   ssr: false,
   pendingComponent: () => <Loader />,
+  onError(_) {
+    Sentry.setContext('home_page', { location: 'fingerprinting browser' })
+  },
 })
 
 function App() {
   const { browserId } = Route.useLoaderData()
   const [selectedRequest, setSelectedRequest] = useState<Requests | null>(null)
-  const { data, isLoading } = useQuery(
+  const { data } = useQuery(
     convexQuery(
       api.requests.getRecentRequests,
       browserId
@@ -104,6 +111,14 @@ function App() {
             <Unauthenticated>
               <AuthDialog />
             </Unauthenticated>
+
+            <Button
+              onClick={() => {
+                throw new Error('Sentry Test Error')
+              }}
+            >
+              Test sentry
+            </Button>
 
             <Separator
               orientation="vertical"
