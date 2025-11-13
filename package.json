@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "sentry-build": "vite build && cp instrument.server.mjs .output/server",
-    "sentry-start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
+    "sentry-build": "vite build && cp instrument.server.mjs dist/server",
+    "sentry-start": "node --import ./dist/server/instrument.server.mjs dist/server/index.mjs",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
