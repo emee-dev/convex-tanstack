@@ -31,19 +31,16 @@ const config = defineConfig(async ({ mode }) => {
       tanstackStart({
         prerender: {
           enabled: true,
-          autoStaticPathsDiscovery: true,
-          crawlLinks: false,
-          filter: ({ path }) => !path.startsWith('/docs'),
           onSuccess: ({ page }) => {
-            console.log(`Rendered ${page.path}!`)
+            console.log(`Pre rendered "${page.path}" done.`)
           },
         },
-        // pages: [
-        //   {
-        //     path: '/docs',
-        //     prerender: { enabled: true, outputPath: '/docs/index.html' },
-        //   },
-        // ],
+        pages: [
+          {
+            path: '/docs',
+            prerender: { enabled: true },
+          },
+        ],
         sitemap: {
           enabled: true,
           host: HOST,

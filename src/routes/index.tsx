@@ -36,8 +36,8 @@ export const Route = createFileRoute('/')({
 function App() {
   const { browserId } = Route.useLoaderData()
   const [selectedRequest, setSelectedRequest] = useState<Requests | null>(null)
-  const { data, isLoading } = useQuery({
-    ...convexQuery(
+  const { data, isLoading } = useQuery(
+    convexQuery(
       api.requests.getRecentRequests,
       browserId
         ? {
@@ -45,7 +45,7 @@ function App() {
           }
         : 'skip',
     ),
-  })
+  )
 
   const handleSelect = (item: any) => {
     setSelectedRequest(item)
