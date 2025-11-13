@@ -6,8 +6,9 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
+import * as Sentry from '@sentry/tanstackstart-react'
 import { useNavigate } from '@tanstack/react-router'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
@@ -19,6 +20,10 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
     strict: false,
     select: (state: any): boolean => state.id === rootRouteId,
   })
+
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
 
   console.error('DefaultCatchBoundary Error:', error)
 

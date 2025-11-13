@@ -47,18 +47,8 @@ export const Route = createRootRouteWithContext<{
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Webhook.sh',
       },
-      // {
-      //   httpEquiv: 'Content-Security-Policy',
-      //   // TODO check if it is safe to do so.
-      //   content: [
-      //     "default-src 'self'",
-      //     "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
-      //     "font-src 'self' https://fonts.gstatic.com",
-      //     "connect-src 'self' http://localhost:* https://*.convex.cloud ws://localhost:* wss://*.convex.cloud",
-      //   ].join('; '),
-      // },
     ],
     links: [
       {

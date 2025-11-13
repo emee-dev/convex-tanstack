@@ -1,5 +1,5 @@
 [build]
-  command = "vite build"
+  command = "pnpm sentry-build"
   publish = "dist/client"
 [dev]
   command = "vite dev"

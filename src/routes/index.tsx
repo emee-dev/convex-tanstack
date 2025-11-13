@@ -16,7 +16,7 @@ import { Requests } from '@/lib/utils'
 import { convexQuery } from '@convex-dev/react-query'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
-import { Unauthenticated } from 'convex/react'
+import { Authenticated, Unauthenticated } from 'convex/react'
 import { useEffect, useState } from 'react'
 import { ProfileDropdown } from '../components/profile-dropdown'
 
@@ -24,7 +24,6 @@ export const Route = createFileRoute('/')({
   component: App,
   loader: async () => {
     const browserId = await getFingerPrint()
-    // const browserId = null
 
     return {
       browserId: String(browserId),
@@ -98,13 +97,12 @@ function App() {
               className="mr-1.5 data-[orientation=vertical]:h-5"
             />
 
-            {/* <Authenticated>
-
-            </Authenticated> */}
+            <Authenticated>
+              <ProfileDropdown />
+            </Authenticated>
 
             <Unauthenticated>
               <AuthDialog />
-              <ProfileDropdown />
             </Unauthenticated>
 
             <Separator
