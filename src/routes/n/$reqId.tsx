@@ -6,7 +6,7 @@ import { json } from '@tanstack/react-start'
 
 type WebhookRequest = Omit<Requests, '_id' | '_creationTime'>
 
-export const Route = createFileRoute('/$reqId')({
+export const Route = createFileRoute('/n/$reqId')({
   server: {
     middleware: [checkFingerprint],
     handlers: {

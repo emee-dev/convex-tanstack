@@ -156,7 +156,7 @@ const CopyFingerprint = () => {
       const host = location.host
       const browserId = await getFingerPrint()
 
-      return `${protocol}//${host}/${browserId}`
+      return `${protocol}//${host}/n/${browserId}`
     },
   })
 
