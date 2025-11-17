@@ -70,7 +70,6 @@ I created this app to store requests, search through them, and generate integrat
 
 ### **Cloudflare**
 
-- Application deployment
 - Workers AI + AI SDK
 
 ### **Codemirror**
