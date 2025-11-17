@@ -1,4 +1,8 @@
+import { api } from '@/convex/_generated/api'
+import { useDebounceSearch } from '@/hooks/use-debounced-search'
 import { color, Requests } from '@/lib/utils'
+import { convexQuery } from '@convex-dev/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Search, SquareTerminal } from 'lucide-react'
 import { useState } from 'react'
 import {
@@ -9,10 +13,6 @@ import {
   DialogTitle,
 } from './ui/dialog'
 import { Input } from './ui/input'
-import { useDebounceSearch } from '@/hooks/use-debounced-search'
-import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from '@/convex/_generated/api'
 
 type SearchDialogProps = {
   fingerprintId: string

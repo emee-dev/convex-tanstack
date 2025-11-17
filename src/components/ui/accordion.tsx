@@ -26,13 +26,16 @@ function AccordionItem({
 type AccordionTriggerProps = React.ComponentProps<
   typeof AccordionPrimitive.Trigger
 > & {
-  extraParts?: React.ReactNode
+  // extraParts?: React.ReactNode
+  hideChevron?: boolean
 }
 
 function AccordionTrigger({
   className,
   children,
-  extraParts,
+  // extraParts,
+  hideChevron = false,
+  asChild,
   ...props
 }: AccordionTriggerProps) {
   return (
@@ -45,19 +48,17 @@ function AccordionTrigger({
         )}
         {...props}
       >
-        {children}
+        <>
+          {children}
 
-        {/* {extraParts} */}
-
-        {extraParts ? (
-          <>{extraParts}</>
-        ) : (
-          <ChevronDownIcon
-            size={16}
-            className="pointer-events-none shrink-0 opacity-60 transition-transform duration-200"
-            aria-hidden="true"
-          />
-        )}
+          {!hideChevron && (
+            <ChevronDownIcon
+              size={16}
+              className="pointer-events-none shrink-0 opacity-60 transition-transform duration-200"
+              aria-hidden="true"
+            />
+          )}
+        </>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )

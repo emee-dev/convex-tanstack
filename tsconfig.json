@@ -6,7 +6,7 @@
     "prettier.config.js",
     "vite.config.js"
   ],
-
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
@@ -21,16 +21,17 @@
     "noEmit": true,
 
     /* Linting */
-    "skipLibCheck": true,
+    // "skipLibCheck": true,
+    "skipLibCheck": false,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    // "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/convex*": ["./convex/*"],
+      "@/convex*": ["convex/*"],
       "@/.source": [".source"]
     }
   }

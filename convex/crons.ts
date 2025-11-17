@@ -31,19 +31,19 @@ export const generateUploadUrl = internalMutation({
   },
 })
 
-// crons.daily(
-//   'Delete unpersisted requests',
-//   {
-//     hourUTC: 17, // (9:30am Pacific/10:30am Daylight Savings Pacific)
-//     minuteUTC: 30,
-//   },
-//   internal.crons.deleteRequests,
-// )
+crons.daily(
+  'Delete unpersisted requests',
+  {
+    hourUTC: 17,
+    minuteUTC: 40,
+  },
+  internal.crons.deleteRequests,
+)
 
-// crons.interval(
-//   'Regenerate upload url',
-//   { minutes: 40 },
-//   internal.crons.generateUploadUrl,
-// )
+crons.interval(
+  'Regenerate upload url',
+  { minutes: 40 },
+  internal.crons.generateUploadUrl,
+)
 
 export default crons

@@ -1,21 +1,8 @@
-import { createMiddleware, createServerFn } from '@tanstack/react-start'
-import { runCode } from '@/lib/scripting'
-import { z } from 'zod/v4'
-import { fetchMutation, fetchQuery } from '@/lib/auth-server'
 import { api } from '@/convex/_generated/api'
-
-const EvalJsSchema = z.object({
-  job: z.object({
-    id: z.string(),
-    code: z.string(),
-  }),
-  requestCtx: z.any(),
-})
-
-const EditNoteSchema = z.object({
-  note: z.string(),
-  requestId: z.string(),
-})
+import { fetchMutation, fetchQuery } from '@/lib/auth-server'
+import { runCode } from '@/lib/scripting'
+import { createMiddleware, createServerFn } from '@tanstack/react-start'
+import { EditNoteSchema, EvalJsSchema, webhookSchema } from './schema'
 
 export const getUploadUrl = createServerFn().handler(async () => {
   const query = await fetchQuery(api.requests.getUploadUrl, {})
@@ -25,7 +12,9 @@ export const getUploadUrl = createServerFn().handler(async () => {
 export const evalJS = createServerFn({ method: 'POST' })
   .inputValidator(EvalJsSchema)
   .handler(async (args) => {
-    return await runCode(args.data.job, args.data.requestCtx)
+    const { script, requestCtx, webhookCtx } = args.data
+
+    return await runCode(script, requestCtx, webhookCtx)
   })
 
 export const editNote = createServerFn({ method: 'POST' })
@@ -37,10 +26,43 @@ export const editNote = createServerFn({ method: 'POST' })
     })
   })
 
-export const checkFingerprint = createMiddleware().server(
-  async ({ next }) => {
-    console.log('Hey')
-    const result = await next()
-    return result
+type RatelimitCtx = {
+  browserId: string
+  origin: string
+  error: Response | null
+}
+
+export const rateLimitMiddleware = createMiddleware({ type: 'request' }).server(
+  async (args) => {
+    const data = webhookSchema.parse((args as any)?.params)
+
+    const browserId = data.reqId
+    const origin = data['**']
+
+    const status = await fetchMutation(api.ratelimit.rateLimitMiddleware, {
+      browserId,
+    })
+
+    const context: RatelimitCtx = {
+      browserId,
+      origin,
+      error: null,
+    }
+
+    if (!status.ok) {
+      return await args.next({
+        context: {
+          ...context,
+          error: Response.json(
+            { msg: 'You are being ratelimited, Try again later.' },
+            { status: 429 },
+          ),
+        },
+      })
+    }
+
+    return await args.next({
+      context,
+    })
   },
 )

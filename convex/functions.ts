@@ -11,6 +11,7 @@ import {
 
 const triggers = new Triggers<DataModel>()
 
+// Remove related scripts when all but one webhook for an origin remains.
 triggers.register('requests', async (ctx, change) => {
   if (change.operation === 'delete') {
     const origin = change.oldDoc.origin
@@ -27,6 +28,7 @@ triggers.register('requests', async (ctx, change) => {
   }
 })
 
+// Helps when checking for scripts to remove.
 triggers.register('requests', async (ctx, change) => {
   const origin = change.newDoc?.origin as string
   const browserId = change.newDoc?.fingerprintId as string

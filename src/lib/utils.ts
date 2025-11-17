@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { Doc } from '@/convex/_generated/dataModel'
+import { Doc, Id } from '@/convex/_generated/dataModel'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -9,7 +9,18 @@ export function cn(...inputs: ClassValue[]) {
 export const isDev = process.env.NODE_ENV === 'development'
 export const cloudflareDeployment = process.env.CLOUDFLARE_DEPLOYMENT === 'true'
 
+type Urls = {
+  downloadUrl: string | null
+  storageId: Id<'_storage'>
+  fileName: string
+}
+
 export type Requests = Doc<'requests'>
+export type Scripts = Omit<Doc<'scripts'>, 'file'> & {
+  file: Urls[]
+}
+
+export type WebhookRequest = Omit<Requests, '_id' | '_creationTime'>
 
 type HttpMethod =
   | 'GET'

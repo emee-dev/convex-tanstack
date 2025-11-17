@@ -1,19 +1,19 @@
- import { createFileRoute, notFound } from '@tanstack/react-router'
-import { DocsLayout } from 'fumadocs-ui/layouts/docs'
-import { createServerFn } from '@tanstack/react-start'
-import { source } from '@/lib/source'
-import type * as PageTree from 'fumadocs-core/page-tree'
-import { useMemo } from 'react'
 import { docs } from '@/.source'
+import { baseOptions } from '@/lib/layout.shared'
+import { source } from '@/lib/source'
+import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import type * as PageTree from 'fumadocs-core/page-tree'
+import { createClientLoader } from 'fumadocs-mdx/runtime/vite'
+import { DocsLayout } from 'fumadocs-ui/layouts/docs'
+import defaultMdxComponents from 'fumadocs-ui/mdx'
 import {
   DocsBody,
   DocsDescription,
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/page'
-import defaultMdxComponents from 'fumadocs-ui/mdx'
-import { createClientLoader } from 'fumadocs-mdx/runtime/vite'
-import { baseOptions } from '@/lib/layout.shared'
+import { useMemo } from 'react'
 
 export const Route = createFileRoute('/docs/$')({
   component: Page,

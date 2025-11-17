@@ -5,17 +5,28 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { api } from '@/convex/_generated/api'
 import { Requests } from '@/lib/utils'
-import { useMutation } from '@tanstack/react-query'
+import { convexQuery, useConvexMutation } from '@convex-dev/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import prettify from 'js-beautify'
 import type { LucideIcon } from 'lucide-react'
 import {
   ChevronDownIcon,
   Copy,
+  Database,
   FileText,
   Info,
   Loader2,
   Pencil,
   Play,
+  Save,
+  Sparkles,
   TerminalSquare,
   Trash2,
   Zap,
@@ -25,16 +36,17 @@ import {
   FormEvent,
   ReactNode,
   SetStateAction,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { useTheme } from 'tanstack-theme-kit'
 import { CodeEditor } from './code-editor'
 import { Snippet } from './code-snippet'
+import { DataStoreDialog } from './data-store-dialog'
 import { LogEntry, LogsViewer } from './logs-viewer'
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-
 type ItemKeys = 'meta' | 'request_body' | 'scripts' | 'logs'
 
 type AccordionItemData = {
@@ -45,14 +57,11 @@ type AccordionItemData = {
   header?: ReactNode
 }
 
-type RequestLayoutProps = { data: Requests }
+type RequestLayoutProps = { data: Requests; uploadUrl: string | undefined }
 
-const code = `console.log('Hello from the script!')
-console.log('Request data:', { example: true })`
-
-export function RequestLayout({ data }: RequestLayoutProps) {
+export function RequestLayout({ uploadUrl, data }: RequestLayoutProps) {
   const { theme } = useTheme()
-  const [value, setValue] = useState(code)
+  const [value, setValue] = useState('')
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [openItems, setOpenItems] = useState<ItemKeys[]>([
     'meta',
@@ -61,18 +70,55 @@ export function RequestLayout({ data }: RequestLayoutProps) {
     'logs',
   ])
 
+  const { data: script } = useQuery(
+    convexQuery(
+      api.scripting.getScript,
+      data
+        ? {
+            fingerprintId: data.fingerprintId,
+            webhookOrigin: data.origin,
+          }
+        : 'skip',
+    ),
+  )
+
   const { isPending, mutate } = useMutation({
     mutationKey: ['evaluate_script', data._id],
     mutationFn: async (source: string) =>
       await evalJS({
         data: {
-          job: { id: data._id, code: source },
-          requestCtx: data,
+          script: { ctx: 'client-side', code: source },
+          requestCtx: {
+            bodyType: data.bodyType,
+            note: data.note,
+            fingerprintId: data.fingerprintId,
+            headers: data.headers,
+            meta: data.meta,
+            method: data.method,
+            origin: data.origin,
+            requestBody: data.requestBody,
+            shouldPersist: data.shouldPersist,
+            query: data.query,
+            storageId: data.storageId,
+          },
+          webhookCtx: {
+            fingerprintId: data.fingerprintId,
+            uploadUrl: uploadUrl || '',
+            webhookOrigin: data.origin,
+          },
         },
       }),
     onSuccess(result) {
       setLogs((p) => [...p, ...result.logs])
     },
+  })
+
+  const { mutate: createScript, isPending: isCreatingScript } = useMutation({
+    mutationFn: useConvexMutation(api.scripting.createScript),
+  })
+
+  const { mutate: saveScript, isPending: isSavingScript } = useMutation({
+    mutationFn: useConvexMutation(api.scripting.editSource),
   })
 
   const onClear = () => {
@@ -83,12 +129,66 @@ export function RequestLayout({ data }: RequestLayoutProps) {
     mutate(source)
   }
 
+  const onSave = async () => {
+    if (!script) return
+    if (isSavingScript) return
+
+    saveScript({
+      source: value,
+      scriptId: script._id,
+    })
+  }
+
+  const onFormat = () => {
+    const result = prettify(value, {
+      indent_size: 2,
+      indent_char: ' ',
+      indent_with_tabs: false,
+
+      end_with_newline: true,
+
+      // Formatting behavior
+      preserve_newlines: true,
+      max_preserve_newlines: 2,
+      space_in_empty_paren: false,
+      break_chained_methods: false,
+
+      // Object & array formatting
+      keep_array_indentation: false,
+      comma_first: false,
+
+      // Line wrapping
+      wrap_line_length: 80,
+
+      // Quotes & semicolons
+      unescape_strings: false,
+
+      // Spacing rules
+      space_before_conditional: true,
+      space_after_anon_function: true,
+      space_in_paren: false,
+      jslint_happy: false,
+
+      // JS-specific
+      e4x: false,
+      operator_position: 'before-newline',
+    })
+
+    setValue(result)
+  }
+
+  useEffect(() => {
+    if (script) {
+      setValue(script.source)
+    }
+  }, [script])
+
   const items: AccordionItemData[] = [
     {
       id: 'meta',
       title: 'Request details',
       icon: Info,
-      content: <RequestDetailsTable data={data} />,
+      content: <RequestMeta data={data} />,
     },
     {
       id: 'request_body',
@@ -135,24 +235,57 @@ export function RequestLayout({ data }: RequestLayoutProps) {
       id: 'scripts',
       title: 'On-request script',
       icon: Zap,
-      // Scripting is available to authenticated users
-      // Runs for all requests from this origin
-      header: (
-        <div className="flex gap-x-1.5 items-center">
-          <div
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-8 px-3 has-[>svg]:px-2.5 cursor-pointer text-primary underline-offset-4 hover:underline"
-            onClick={() => onExecute(value)}
-          >
-            {isPending ? 'Wait...' : <Play className="h-3.5 w-3.5" />}
-          </div>
-          <ChevronDownIcon
-            size={16}
-            className="pointer-events-none shrink-0 opacity-60 transition-transform duration-200"
-            aria-hidden="true"
-          />
-        </div>
+      header: script && (
+        <EditorActions
+          data={data}
+          isPending={isPending}
+          isSavingScript={isSavingScript}
+          onSave={onSave}
+          onExecute={onExecute}
+          onFormat={onFormat}
+          script={script}
+          value={value}
+        />
       ),
-      content: <CodeEditor theme={theme} value={value} onChange={setValue} />,
+      content: (
+        <>
+          {script && (
+            <CodeEditor theme={theme} value={value} onChange={setValue} />
+          )}
+
+          {!script && (
+            <div className="space-y-3">
+              <div className="border border-dashed flex flex-col items-center justify-center rounded-md bg-muted/30 h-40 p-4 text-center">
+                <p className="text-sm text-muted-foreground">
+                  You don't have a script yet
+                </p>
+                <Button
+                  disabled={isCreatingScript}
+                  size="sm"
+                  className="mt-2"
+                  onClick={() =>
+                    createScript({
+                      webhookOrigin: data.origin,
+                      fingerprintId: data.fingerprintId,
+                      source:
+                        "async function onRequest() { \n  console.log('Your scripts go here!')\n}",
+                    })
+                  }
+                >
+                  {isCreatingScript ? (
+                    <>
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />{' '}
+                      Loading...
+                    </>
+                  ) : (
+                    'Create Script'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      ),
     },
     {
       id: 'logs',
@@ -211,7 +344,8 @@ export function RequestLayout({ data }: RequestLayoutProps) {
             >
               <AccordionTrigger
                 className="flex w-full items-center justify-between rounded-md py-2 text-[15px] leading-6 outline-none hover:no-underline focus-visible:ring-0 font-sans"
-                extraParts={item?.header}
+                hideChevron
+                asChild
               >
                 <div className="flex items-center gap-2">
                   {Icon && (
@@ -222,6 +356,8 @@ export function RequestLayout({ data }: RequestLayoutProps) {
                   )}
                   <span>{item.title}</span>
                 </div>
+
+                <div>{item?.header}</div>
               </AccordionTrigger>
 
               <AccordionContent className="text-muted-foreground relative w-full max-w-full overflow-hidden font-sans">
@@ -237,9 +373,94 @@ export function RequestLayout({ data }: RequestLayoutProps) {
   )
 }
 
-type Props = { data: Requests }
+type EditorActionsProps = {
+  value: string
+  onExecute: (code: string) => void
+  onFormat: () => void
+  onSave: () => void
+  data: any
+  script: any
+  isPending: boolean
+  isSavingScript: boolean
+}
 
-function RequestDetailsTable(props: Props) {
+export function EditorActions({
+  value,
+  onExecute,
+  onFormat,
+  onSave,
+  data,
+  script,
+  isPending,
+  isSavingScript,
+}: EditorActionsProps) {
+  const [show, setShow] = useState(false)
+  const baseBtn =
+    'inline-flex items-center justify-center h-8 w-8 rounded-md text-primary ' +
+    'hover:bg-muted transition-colors cursor-pointer'
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={baseBtn} onClick={() => onExecute(value)}>
+            {isPending ? (
+              <span className="text-xs">...</span>
+            ) : (
+              <Play className="size-4" />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>Run</TooltipContent>
+      </Tooltip>
+
+      <DataStoreDialog
+        fingerprintId={data.fingerprintId}
+        webhookOrigin={data.origin}
+        fileData={script?.file || []}
+        kvData={script?.kv || []}
+        show={show}
+        setShow={setShow}
+        trigger={
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={baseBtn} onClick={() => setShow(!show)}>
+                <Database className="size-4" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>View Data</TooltipContent>
+          </Tooltip>
+        }
+      />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={baseBtn} onClick={onFormat}>
+            <Sparkles className="size-4" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>Format</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={baseBtn} onClick={onSave}>
+            {isSavingScript ? (
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>{isSavingScript ? 'Saving' : 'Save'}</TooltipContent>
+      </Tooltip>
+    </div>
+  )
+}
+
+type RequestMetaProps = { data: Requests }
+
+function RequestMeta(props: RequestMetaProps) {
   const [isEditing, setEditing] = useState(false)
   const [noteValue, setNoteValue] = useState<string>(props.data.note || '')
   const { isPending, mutate } = useMutation({
@@ -419,7 +640,7 @@ export type MetaItem = {
 
 function sortMeta(meta: MetaItem[]): MetaItem[] {
   const order: Record<string, number> = {
-    method: 1, // represented by isMethod
+    method: 1,
     size: 2,
     date: 3,
     note: 4,

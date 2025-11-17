@@ -53,14 +53,20 @@ function DialogOverlay({ className, overlay, ...props }: DialogOverlayProps) {
   )
 }
 
+type DialogContentProps = React.ComponentProps<
+  typeof DialogPrimitive.Content
+> & {
+  showCloseButton?: boolean
+  moreItems?: React.ReactNode
+}
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  moreItems = undefined,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
-  showCloseButton?: boolean
-}) {
+}: DialogContentProps) {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay overlay />
@@ -74,7 +80,9 @@ function DialogContent({
       >
         {children}
         {showCloseButton && (
-          <div className="flex items-center gap-x-2 absolute right-1 top-1 bg-background rounded-md">
+          <div className="flex items-center gap-x-2 absolute right-1 top-1 bg-backgroundx rounded-md">
+            {moreItems}
+
             <DialogPrimitive.Close
               className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
               asChild

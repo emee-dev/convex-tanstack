@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { api } from '@/convex_generated/api'
+import { api } from '@/convex/_generated/api'
 import { getInitials } from '@/lib/utils'
 import { useAuthActions } from '@convex-dev/auth/react'
 import { useRouter } from '@tanstack/react-router'

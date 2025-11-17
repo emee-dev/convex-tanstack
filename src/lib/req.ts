@@ -2,10 +2,11 @@ import { Requests } from './utils'
 
 export type ParsedBody =
   | { kind: 'application/json'; raw: string }
+  | { kind: 'multipart/form-data'; raw: ArrayBuffer }
+  | { kind: 'application/octet-stream'; raw: ArrayBuffer }
   | { kind: 'text/plain'; raw: string }
   | { kind: 'form'; raw: Record<string, string | string[]> }
-  | { kind: 'blob'; raw: Buffer }
-  | { kind: 'empty'; raw: '' | null }
+  | { kind: 'empty'; raw: '' }
 
 export async function parseQuery(request: Request): Promise<Requests['query']> {
   const url = new URL(request.url)
@@ -51,7 +52,7 @@ export async function parseBody(request: Request): Promise<ParsedBody> {
   const contentType = request.headers.get('content-type') ?? ''
   const ct = contentType.split(';')[0].trim().toLowerCase()
 
-  // If no body
+  // No body
   if (
     request.bodyUsed === false &&
     (request.method === 'GET' || request.method === 'HEAD')
@@ -83,8 +84,15 @@ export async function parseBody(request: Request): Promise<ParsedBody> {
     return { kind: 'form', raw: obj }
   }
 
-  // if (ct === 'multipart/form-data') {
-  // }
+  if (ct === 'multipart/form-data') {
+    const arrayBuffer = await request.arrayBuffer()
+    return { kind: 'multipart/form-data', raw: arrayBuffer }
+  }
+
+  if (ct === 'application/octet-stream') {
+    const arrayBuffer = await request.arrayBuffer()
+    return { kind: 'application/octet-stream', raw: arrayBuffer }
+  }
 
   return { kind: 'empty', raw: '' }
 }

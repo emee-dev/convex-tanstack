@@ -2,11 +2,9 @@ import { DefaultCatchBoundary } from '@/components/error-boundary'
 import { NotFound } from '@/components/not-found'
 import { ConvexAuthProvider } from '@convex-dev/auth/react'
 import { ConvexQueryClient } from '@convex-dev/react-query'
-// import * as Sentry from '@sentry/tanstackstart-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { ConvexReactClient } from 'convex/react'
-import { isDev } from './lib/utils'
 import { routeTree } from './routeTree.gen'
 
 const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL as string

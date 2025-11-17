@@ -34,7 +34,8 @@ export default defineSchema({
     ),
     bodyType: v.union(
       v.literal('application/json'),
-      v.literal('blob'),
+      v.literal('multipart/form-data'),
+      v.literal('application/octet-stream'),
       v.literal('text/plain'),
       v.literal('form'),
       v.literal('empty'),
@@ -67,10 +68,16 @@ export default defineSchema({
         timestamp: v.string(),
       }),
     ),
-    env: v.array(
+    kv: v.array(
       v.object({
         key: v.string(),
-        value: v.any(),
+        value: v.union(v.string(), v.number(), v.null(), v.boolean()),
+      }),
+    ),
+    file: v.array(
+      v.object({
+        fileName: v.string(),
+        storageId: v.id('_storage'),
       }),
     ),
     requestsLeft: v.optional(v.literal('one')),

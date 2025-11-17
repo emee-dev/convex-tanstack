@@ -71,9 +71,10 @@ export const insertRequest = mutation({
     ),
     bodyType: v.union(
       v.literal('application/json'),
+      v.literal('multipart/form-data'),
+      v.literal('application/octet-stream'),
       v.literal('text/plain'),
       v.literal('form'),
-      v.literal('blob'),
       v.literal('empty'),
     ),
     note: v.string(),

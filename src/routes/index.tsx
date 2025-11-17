@@ -1,12 +1,12 @@
 import { getFingerPrint } from '@/actions/client'
 import { AppSidebar } from '@/components/app-sidebar'
 import { AuthDialog } from '@/components/auth-dialog'
+import { CodeGenerator } from '@/components/code-generator'
 import { Loader } from '@/components/loader'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { RequestLayout } from '@/components/request-layout'
 import { SearchDialog } from '@/components/search-dialog'
 import { AnimatedThemeToggler } from '@/components/theme-toggle'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -52,6 +52,9 @@ function App() {
           }
         : 'skip',
     ),
+  )
+  const { data: metadata } = useQuery(
+    convexQuery(api.requests.getUploadUrl, browserId ? {} : 'skip'),
   )
 
   const handleSelect = (item: any) => {
@@ -112,14 +115,6 @@ function App() {
               <AuthDialog />
             </Unauthenticated>
 
-            <Button
-              onClick={() => {
-                throw new Error('Sentry Test Error')
-              }}
-            >
-              Test sentry
-            </Button>
-
             <Separator
               orientation="vertical"
               className="mr-1.5 data-[orientation=vertical]:h-5"
@@ -130,13 +125,16 @@ function App() {
         </header>
         {selectedRequest && (
           <div className="grid grid-cols-10 gap-4 p-4 pt-0">
-            <div className="h-11 flex items-center col-span-10">
-              <p className="text-sm hover:underline outline-offset-8 ml-auto cursor-pointer">
-                Replay
-              </p>
+            <div className="h-11 flex col-span-10">
+              <div className="ml-auto flex items-center gap-x-1.5">
+                <CodeGenerator selectedRequest={selectedRequest} />
+              </div>
             </div>
 
-            <RequestLayout data={selectedRequest} />
+            <RequestLayout
+              uploadUrl={metadata?.uploadUrl}
+              data={selectedRequest}
+            />
           </div>
         )}
 

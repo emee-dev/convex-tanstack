@@ -1,4 +1,4 @@
-// import { cloudflare } from '@cloudflare/vite-plugin'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -7,6 +7,8 @@ import mdx from 'fumadocs-mdx/vite'
 import { defineConfig } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
+
+const platform = process.env.PLAT_FORM as 'netlify' | 'cloudflare' | undefined
 
 const config = defineConfig(async ({ mode }) => {
   const HOST =
@@ -39,7 +41,10 @@ const config = defineConfig(async ({ mode }) => {
     }),
     tailwindcss(),
     viteReact(),
-    mode === 'production' ? netlify() : [],
+    mode === 'production' && platform === 'netlify' ? netlify() : [],
+    mode === 'production' && platform === 'cloudflare'
+      ? cloudflare({ viteEnvironment: { name: 'ssr' } })
+      : [],
   ]
 
   if (process.env.SENTRY_AUTH_TOKEN) {
@@ -48,6 +53,7 @@ const config = defineConfig(async ({ mode }) => {
         org: 'convex-tanstack',
         project: 'convex-tanstack',
         authToken: process.env.SENTRY_AUTH_TOKEN,
+        telemetry: false,
       }),
     )
   }
