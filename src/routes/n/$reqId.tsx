@@ -1,7 +1,7 @@
 import { rateLimitMiddleware } from '@/actions/server'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { fetchQuery } from '@/lib/auth-server'
+import { fetchMutation, fetchQuery } from '@/lib/auth-server'
 import { parseBody, parseHeaders, parseQuery } from '@/lib/req'
 import { runCode, WebhookCtx } from '@/lib/scripting'
 import { WebhookRequest } from '@/lib/utils'
@@ -160,6 +160,8 @@ export const Route = createFileRoute('/n/$reqId')({
             requestCtx,
             webhookCtx,
           )
+
+          await fetchMutation(api.requests.insertRequest, requestCtx)
 
           if (result.result instanceof Response) {
             return result.result

@@ -42,6 +42,7 @@ export const getRecentRequests = query({
 export const insertRequest = mutation({
   args: {
     fingerprintId: v.string(),
+    origin: v.string(),
     method: v.string(),
     meta: v.array(
       v.object({
@@ -50,11 +51,11 @@ export const insertRequest = mutation({
           v.literal('url'),
           v.literal('date'),
           v.literal('size'),
+          v.literal('note'),
         ),
         value: v.string(),
       }),
     ),
-    origin: v.string(),
     query: v.optional(
       v.array(
         v.object({
