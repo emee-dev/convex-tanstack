@@ -5,10 +5,15 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import mdx from 'fumadocs-mdx/vite'
 import { defineConfig } from 'vite'
+import { nitro } from 'nitro/vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 
-const platform = process.env.PLAT_FORM as 'netlify' | 'cloudflare' | undefined
+const platform = process.env.PLAT_FORM as
+  | 'netlify'
+  | 'cloudflare'
+  | 'vercel'
+  | undefined
 
 const config = defineConfig(async ({ mode }) => {
   const HOST =
@@ -45,6 +50,7 @@ const config = defineConfig(async ({ mode }) => {
     mode === 'production' && platform === 'cloudflare'
       ? cloudflare({ viteEnvironment: { name: 'ssr' } })
       : [],
+    mode === 'production' && platform === 'vercel' ? nitro() : [],
   ]
 
   if (process.env.SENTRY_AUTH_TOKEN) {
@@ -63,6 +69,7 @@ const config = defineConfig(async ({ mode }) => {
       port: 3000,
     },
     plugins: basePlugins,
+    nitro: {},
   }
 })
 
