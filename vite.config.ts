@@ -70,6 +70,9 @@ const config = defineConfig(async ({ mode }) => {
       port: 3000,
     },
     plugins: basePlugins,
+    build: {
+      sourcemap: false,
+    },
     nitro: {},
   }
 })
