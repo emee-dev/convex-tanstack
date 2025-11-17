@@ -22,6 +22,12 @@ const config = defineConfig(async ({ mode }) => {
       : 'https://webhooksh.netlify.app'
 
   const basePlugins = [
+    mode === 'production' && platform === 'netlify' ? netlify() : [],
+    mode === 'production' && platform === 'cloudflare'
+      ? cloudflare({ viteEnvironment: { name: 'ssr' } })
+      : [],
+    mode === 'production' && platform === 'vercel' ? nitro() : [],
+
     mdx(await import('./source.config')),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
@@ -46,11 +52,6 @@ const config = defineConfig(async ({ mode }) => {
     }),
     tailwindcss(),
     viteReact(),
-    mode === 'production' && platform === 'netlify' ? netlify() : [],
-    mode === 'production' && platform === 'cloudflare'
-      ? cloudflare({ viteEnvironment: { name: 'ssr' } })
-      : [],
-    mode === 'production' && platform === 'vercel' ? nitro() : [],
   ]
 
   if (process.env.SENTRY_AUTH_TOKEN) {
