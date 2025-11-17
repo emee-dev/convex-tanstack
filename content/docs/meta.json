@@ -1,0 +1,7 @@
+{
+  "title": "Webhook.sh",
+  "description": "Best app in the webhook world",
+  "icon": "Pencil",
+  "root": true,
+  "pages": ["index", "scripting"]
+}

@@ -1,0 +1,243 @@
+---
+title: Scripting
+---
+
+Scripting allows you to dynamically control how a request behaves during execution.
+All scripting functions run in a sandboxed environment and return Promises unless otherwise stated.
+
+Below is a breakdown of every available global utility, their usage, and examples.
+
+---
+
+## `$scrapeUrl(url, opts?)`
+
+Scrape a webpage using Firecrawl and optionally apply a schema or prompt.
+
+### **Definition**
+
+```ts
+declare function $scrapeUrl(
+  url: string,
+  opts?: { prompt?: string; schema?: any },
+): Promise<{
+  success: boolean
+  data: any
+  metadata: FirecrawlMetadata
+}>
+```
+
+### **Arguments**
+
+| Name          | Type                  | Description                          |
+| ------------- | --------------------- | ------------------------------------ |
+| `url`         | `string`              | URL to scrape                        |
+| `opts.prompt` | `string` _(optional)_ | Prompt to guide Firecrawl extraction |
+| `opts.schema` | `any` _(optional)_    | JSON schema for typed extraction     |
+
+### **Example**
+
+```ts
+const result = await $scrapeUrl('https://example.com', {
+  prompt: 'Extract article title and summary',
+})
+
+if (result.success) {
+  console.log(result.data)
+}
+```
+
+---
+
+## `$screenShotUrl(url, opts?)`
+
+Take a screenshot of a webpage.
+
+### **Definition**
+
+```ts
+declare function $screenShotUrl(
+  url: string,
+  opts?: {
+    fullPage: boolean
+    width: number
+    height: number
+    quality: number
+  },
+): Promise<{ success: boolean; screenshot: string }>
+```
+
+### **Example**
+
+```ts
+const shot = await $screenShotUrl('https://example.com', {
+  fullPage: true,
+  width: 1280,
+  height: 720,
+  quality: 85,
+})
+
+return $json({ image: shot.screenshot })
+```
+
+---
+
+## `$set(key, value)`
+
+Store a simple key/value pair.
+
+### **Definition**
+
+```ts
+declare function $set(key: string, value: string): Promise<boolean>
+```
+
+### **Example**
+
+```ts
+await $set('username', 'john_doe')
+```
+
+---
+
+## `$get(key)`
+
+Retrieve a stored value.
+
+### **Definition**
+
+```ts
+declare function $get(key: string): Promise<string | number | boolean | null>
+```
+
+### **Example**
+
+```ts
+const username = await $get('username')
+```
+
+---
+
+## `$setFile(fileName, storageId)`
+
+Save a file reference.
+
+### **Definition**
+
+```ts
+declare function $setFile(fileName: string, storageId: string): Promise<boolean>
+```
+
+### **Example**
+
+```ts
+await $setFile('invoice.pdf', 'store_abc123')
+```
+
+---
+
+## `$getFile(fileName)`
+
+Retrieve a previously stored file’s storage ID.
+
+### **Definition**
+
+```ts
+declare function $getFile(fileName: string): Promise<string | null>
+```
+
+### **Example**
+
+```ts
+const id = await $getFile('invoice.pdf')
+```
+
+---
+
+## `$uploadJsonAsBlob(content)`
+
+Upload a JSON string as a blob and return a storage ID.
+
+### **Definition**
+
+```ts
+declare function $uploadJsonAsBlob(
+  content: string,
+): Promise<{ storageId: string }>
+```
+
+### **Example**
+
+```ts
+const { storageId } = await $uploadJsonAsBlob(
+  JSON.stringify({ message: 'Hello world' }),
+)
+```
+
+---
+
+## `$json(data, init?)`
+
+Return a JSON response.
+
+### **Definition**
+
+```ts
+declare function $json<TData>(payload: TData, init?: ResponseInit): Response
+```
+
+### **Example**
+
+```ts
+return $json({ ok: true })
+```
+
+---
+
+## `$text(message, init?)`
+
+Return a plain text response.
+
+### **Definition**
+
+```ts
+declare function $text(payload: string, init?: ResponseInit): Response
+```
+
+### **Example**
+
+```ts
+return $text('Request processed successfully')
+```
+
+---
+
+# Metadata Types
+
+## `FirecrawlMetadata`
+
+Metadata automatically returned by `$scrapeUrl`.
+All fields are optional and support additional unknown fields.
+
+```ts
+type FirecrawlMetadata = {
+  msapplication-config?: string
+  language?: string
+  ...
+  [key: string]: any
+}
+```
+
+---
+
+# Summary
+
+These scripting utilities give you full control over:
+
+- Scraping URLs
+- Taking screenshots
+- Reading/writing key/value state
+- Managing file references
+- Uploading JSON blobs
+- Returning JSON or text responses
+
+Use them to dynamically process, transform, store, and respond to webhook requests.

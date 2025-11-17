@@ -1,34 +1,92 @@
-Webhook.sh is an application that simplifies webhook integration offering the ability to receive webhooks, runs scripts, generate and copy integration scripts with AI assistance. It removes the anxiety that comes with integrating third party api services.
+# Webhook.sh
 
-### Problem
-When working with webhooks, it is very important to know the shape of the incoming request and also be able to write the integration code for it. I created this app to help me store the request, search for request and using AI to generate integration code snippets.
+**Webhook.sh** is an application that simplifies webhook integration by offering the ability to receive webhooks, run scripts, and generate/copy integration snippets with AI assistance. It removes the anxiety that often comes with integrating third-party API services.
 
-### Notable features
-1. Ratelimiting requests
-2. On Request scripting with Codemirror editor
-3. Tanstack is very fun to work with.
+---
 
-### Tech stack
-Tanstack start: Client/Server/Middleware functions API RoutesPage loaderError componentNot found componentclient renderingPre-rendering (/docs)SitemapFile uploadsCustom client entry 
-Convex:
-Queries/MutationsCron schedulesFile Storage/ServeConvex TriggersFull text searchAuth component with BetterAuthConvex + Tanstack queryRatelimit component
-Sentry:Application observability + event contexts
-Netlify:Application deployment 
-Firecrawl:
-On request utility functions eg $screenShotUrl(), $scrapeUrl()
+## 🚧 Problem
 
-Autumn:Not supported in my country
+When working with webhooks, it is crucial to know the **shape of the incoming request** and be able to **quickly write integration code** for it.
+I created this app to store requests, search through them, and generate integration snippets using AI.
 
-Coderabbit: Don't know how to use it.
+---
 
-Cloudflare: Application deploymentWorkers AI + AI SDK
+## ✨ Notable Features
 
-Codemirror:Js Code Editor with incredible Typescript integration thanks to valtown extensions
+1. Rate-limiting incoming requests
+2. On-request scripting using the Codemirror editor
+3. Built with TanStack — which is extremely fun to work with
 
+---
 
-### Why did I build this?
-I built this primarily because I always have this axiety when working with webhooks. And this application is my way of reducing or eliminating that stress.
+## 🧰 Tech Stack
 
+### **TanStack Start**
 
-### Challenges
-I had some issues understanding the Tanstack paradigm, and also deploying on netlify or cloudflare and getting exceptions after expceptions
+- Client/Server/Middleware functions
+- API Routes
+- Page Loader
+- Error Component
+- Not-found Component
+- Client Rendering
+- Pre-rendering (e.g., `/docs`)
+- Sitemap
+- File Uploads
+- Custom Client Entry
+
+### **Convex**
+
+- Queries / Mutations
+- Cron Schedules
+- File Storage / Serving
+- Convex Triggers
+- Full-text Search
+- Auth Component (BetterAuth)
+- Convex + TanStack Query
+- Rate-limit Component
+
+### **Sentry**
+
+- Application observability
+- Event context tracking
+
+### **Netlify**
+
+- Application deployment
+
+### **Firecrawl**
+
+- On-request utilities like:
+  - `$screenShotUrl()`
+  - `$scrapeUrl()`
+
+### **Autumn**
+
+- Not supported in my country
+
+### **Coderabbit**
+
+- Don't know how to use it.
+
+### **Cloudflare**
+
+- Application deployment
+- Workers AI + AI SDK
+
+### **Codemirror**
+
+- JS code editor
+- Excellent TypeScript integration (thanks to Valtown extensions)
+
+---
+
+## 🧠 Why Did I Build This?
+
+I built this primarily because I often feel anxious when working with webhooks.
+This application is my way of reducing — or hopefully eliminating — that stress.
+
+---
+
+## 🧩 Challenges
+
+I encountered difficulties understanding the TanStack paradigm, and also ran into several deployment challenges on Netlify and Cloudflare, including repeated exceptions.
