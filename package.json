@@ -11,8 +11,8 @@
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
     "cf-deploy": "pnpm run build && wrangler deploy",
-    "cf-typegen": "wrangler types",
-    "postinstall": "pnpm cf-typegen"
+    "cf-typegen": "wrangler types"
+
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.93",
