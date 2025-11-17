@@ -1,4 +1,4 @@
-import { api } from '@/convex_generated/api'
+import { api } from '@/convex/_generated/api'
 import { json } from '@tanstack/react-start'
 import axios from 'axios'
 import vm from 'node:vm'
