@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { streamText } from 'ai'
 import { createWorkersAI } from 'workers-ai-provider'
 
-const cf_accountId = process.env.CF_ACCOUNT_ID!
+const cf_accountId = process.env.CLOUDFLARE_ACCOUNT_ID!
 const cf_secret = process.env.WORKERS_API_SECRET!
 
 const workersai = createWorkersAI({
