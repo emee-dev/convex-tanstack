@@ -20,7 +20,10 @@ export type Scripts = Omit<Doc<'scripts'>, 'file'> & {
   file: Urls[]
 }
 
-export type WebhookRequest = Omit<Requests, '_id' | '_creationTime'>
+export type WebhookRequest = Omit<
+  Requests,
+  '_id' | '_creationTime' | 'shouldPersist'
+>
 
 type HttpMethod =
   | 'GET'

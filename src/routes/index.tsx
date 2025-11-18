@@ -126,6 +126,10 @@ function App() {
         {selectedRequest && (
           <div className="grid grid-cols-10 gap-4 p-4 pt-0">
             <div className="h-11 flex col-span-10">
+              <ClientOnly fallback={<div>Loading...</div>}>
+                <CopyFingerprint />
+              </ClientOnly>
+
               <div className="ml-auto flex items-center gap-x-1.5">
                 <CodeGenerator selectedRequest={selectedRequest} />
               </div>

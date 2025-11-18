@@ -142,7 +142,6 @@ export const Route = createFileRoute('/n/$reqId')({
             ],
             headers,
             requestBody,
-            shouldPersist: false,
             storageId,
           }
 
@@ -168,9 +167,12 @@ export const Route = createFileRoute('/n/$reqId')({
           }
 
           return json({ hint: 'No response configured for this origin.' })
-        } catch (error) {
+        } catch (error: any) {
           console.error(error)
-          return json({ hint: 'No response configured for this origin.' })
+          return json({
+            hint: 'No error response configured for this origin.',
+            error: error.message,
+          })
         }
       },
     },
